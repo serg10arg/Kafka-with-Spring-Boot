@@ -1,5 +1,6 @@
 package com.learnkafka.config;
 
+import com.learnkafka.service.FailureService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.beans.factory.ObjectProvider;
