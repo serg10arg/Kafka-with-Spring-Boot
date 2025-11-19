@@ -1,5 +1,6 @@
 package com.learnkafka.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learnkafka.model.LibraryEvent;
 import com.learnkafka.repository.LibraryEventsRepository;
@@ -31,10 +32,10 @@ public class LibraryEventService {
 
     //Crea un método público que será el punto de entrada desde el consumidor de Kafka.
     // Este método orquesta la deserialización, validación y persistencia.
-    public void proccessLibraryEvent(ConsumerRecord<Integer, LibraryEvent> consumerRecord) {
+    public void proccessLibraryEvent(ConsumerRecord<Integer, String> consumerRecord) throws JsonProcessingException {
 
         // 1. Deserializa el playload JSON a un objeto JAVA.
-        LibraryEvent libraryEvent = consumerRecord.value();
+        LibraryEvent libraryEvent = objectMapper.readValue(consumerRecord.value(), LibraryEvent.class);
         
         // 2. (Opcional) Simula un error recuperable para probar la resiliencia.
         if (libraryEvent.getLibraryEventId() != null && (libraryEvent.getLibraryEventId() == 999)) {
