@@ -32,5 +32,4 @@ public class FailureService {
 
         log.info("Failure record saved: {}", failureRecord);
     }
-
 }
