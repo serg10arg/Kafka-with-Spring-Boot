@@ -27,6 +27,10 @@ import java.util.List;
 @Slf4j
 public class LibraryEventsConsumerConfig {
 
+    public static final String RETRY = "RETRY";
+    public static final String SUCCESS = "SUCCESS";
+    public static final String DEAD = "DEAD";
+
     @Autowired
     LibraryEventService libraryEventService;
 

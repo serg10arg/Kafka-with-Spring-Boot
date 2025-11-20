@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface FailureRecordRepository extends CrudRepository<FailureRecord, Integer> {
 
-    List<FailureRecord> findByStatus(String status);
+    List<FailureRecord> findAllByStatus(String status);
 
 }

@@ -31,6 +31,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -112,15 +113,16 @@ public class LibraryEventsConsumerIntegrationTest {
                 "{\"bookId\":456,\"bookName\":\"Kafka Using Spring Boot\",\"bookAuthor\":\"Dilip\"}}";
         kafkaTemplate.sendDefault(json).get();
 
-        // when: espera hasta que las condiciones se cumplan, con un timeout máximo.
-        await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
-            // then: verifica los resultados
-            // 1. Verifica que los metodos del consumidor y del servicio fueron llamados una vez
-            verify(libraryEventsConsumerSpy, times(1)).onMessage(isA(ConsumerRecord.class));
-            verify(libraryEventServiceSpy, times(1)).proccessLibraryEvent(isA(ConsumerRecord.class));
-        });
+        // when: espera un tiempo prudencial para que el conumidor procese el mensaje.
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(3, TimeUnit.SECONDS );
 
-        // 2. Verifica el estado final de la base de datos
+        // then: verifica los resultados
+        // 1. Verifica que los metodos del consumidor y del servicio fueron llamados una vez
+        verify(libraryEventsConsumerSpy, times(1)).onMessage(isA(ConsumerRecord.class));
+        verify(libraryEventServiceSpy, times(1)).proccessLibraryEvent(isA(ConsumerRecord.class));
+
+        // 2. Verifica que el evento fue guardado correctamente en la base de datos
         List<LibraryEvent> libraryEventList = (List<LibraryEvent>) libraryEventsRepository.findAll();
         assert libraryEventList.size() == 1;
         libraryEventList.forEach(libraryEvent -> {
