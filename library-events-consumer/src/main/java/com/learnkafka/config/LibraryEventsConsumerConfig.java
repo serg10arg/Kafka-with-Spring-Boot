@@ -16,7 +16,6 @@ import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
@@ -96,17 +95,13 @@ public class LibraryEventsConsumerConfig {
     ConcurrentKafkaListenerContainerFactory<?, ?> kafkaListenerContainerFactory(
             ConcurrentKafkaListenerContainerFactoryConfigurer configurer,
             ObjectProvider<ConsumerFactory<Object, Object>> kafkaConsumerFactory) {
-        
-        // 3.1 Añade la configuración para que el JsonDeserializer confíe en nuestro paquete de dominio
-        ConsumerFactory<Object, Object> cf = kafkaConsumerFactory
-                .getIfAvailable(() -> new DefaultKafkaConsumerFactory<>(this.kafkaProperties.buildConsumerProperties()));
-        cf.setValueDeserializer(new JsonDeserializer<>().trustedPackages("com.learnkafka.model"));
-        
-        // 3.2 Crear una nueva instancia de la fabrica
+
+        // 3.1 Crear una nueva instancia de la fabrica
         ConcurrentKafkaListenerContainerFactory<Object, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
 
         // 3.2 Aplica toda la configuracion por defecto de Spring Boot
-        configurer.configure(factory, cf);
+        configurer.configure(factory, kafkaConsumerFactory
+                .getIfAvailable(() -> new DefaultKafkaConsumerFactory<>(this.kafkaProperties.buildConsumerProperties())));
 
         // 3.3 Establece la concurrencia (numero de hilos por listener)
         factory.setConcurrency(3);
