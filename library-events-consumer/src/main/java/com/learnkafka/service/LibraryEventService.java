@@ -32,7 +32,7 @@ public class LibraryEventService {
 
     //Crea un método público que será el punto de entrada desde el consumidor de Kafka.
     // Este método orquesta la deserialización, validación y persistencia.
-    public void proccessLibraryEvent(ConsumerRecord<Integer, String> consumerRecord) throws JsonProcessingException {
+    public void processLibraryEvent(ConsumerRecord<Integer, String> consumerRecord) throws JsonProcessingException {
 
         // 1. Deserializa el playload JSON a un objeto JAVA.
         LibraryEvent libraryEvent = objectMapper.readValue(consumerRecord.value(), LibraryEvent.class);
